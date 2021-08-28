@@ -1,0 +1,17 @@
+struct date{
+int dd,mm,yy;
+};
+
+struct studentInformation{
+	string name;
+	int age,grade;
+	string fname;
+    string lname;
+    char sex;
+    date bod;
+};
+
+struct course{
+	int intake_capacity;
+	float cgpa;
+};
