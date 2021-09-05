@@ -1,6 +1,12 @@
 #include<iostream>
 #include<string.h>
+#include<iomanip>
 using namespace std;
+
+struct Courselist{
+    string cNames[5];
+    float price[5]{};
+};
 
 struct Date{
     int dd, mm, yy;
@@ -8,33 +14,53 @@ struct Date{
 
 struct studInfo{
 	char name[30],sex;
-	int age,stud_id;
+	int age,stud_id{};
     Date reg_date, pay_date;
+    Courselist courses;
+    float total_pay{};
+
+};
+
+struct Schoolinfo{
+    float total,expense;
+    float net;
 };
 
 char retry;
-int intake_cap{1'000};
+int intake_cap{1000};
 int stud_count{};
+float prices[5]{700, 500, 550, 450, 600};
+float ctaken[5]{};
+Schoolinfo school;
 studInfo *stud = new studInfo[intake_cap];
 studInfo *stud1 = nullptr;
 
 void new_reg();
 void admin();
 void set_intake();
+void set_pay();
 void overdue();
+void profit();
+void Coursechoice(int studnum);
+inline void table(int i);
+void reorder();
+void statreport();
+void searching();
+void edit();
+void deletion();
 
-void mainmenu()
+void menu()
 {
     system("cls");
     int n;
-    cout << "\t\tSidney Middle School.\n\t    Billing Management Directory." << endl;
+    cout << "\n\t\t   Sidney Middle School." << endl;
+    cout << "\t\tBilling Management Directory." << endl;
     here:
     cout << "\n\t\tMain Menu" << endl;
     cout << "\n\t1. Registration options." << endl;
     cout << "\t2. Administration options." << endl;
-    cout << "\t3. Student list and search options." << endl;
-    cout << "\t4. Statistical reports." << endl;
-    cout << "\t5. System developers." << endl;
+    cout << "\t3. Statistical reports." << endl;
+    cout << "\t4. System developers." << endl;
     cout << "\n Choice: ";
     cin >> n;
     switch (n){
@@ -42,43 +68,16 @@ void mainmenu()
                 break;
        case 2: admin();
                 break;
-       case 3: break;
-       case 4: break;
-       case 5: break;
-       default:
-         cout << "Invalid choice, would you like to try again(y/n)?" << endl;
-         cin >> retry;
-         if (tolower(retry) == 'y'){
-            system("cls");
-            goto here;
-         }
-         else{
-             system("cls");
-             cout << "Have a nice day!" << endl;
-             return;
-         }
-         break;
-    }
-}
-
-int main()
-{
-   system("color f0");
-   mainmenu();
-}
-void new_reg(){
-
-      system("cls");
-      here:
-      int choice;
-      cout << "\n\t1. Register a student." << endl;
-      cout << "\t2. Check payment status." << endl;
-      cout << "\n Choice: ";
-      cin >> choice;
-      switch (choice){
-       case 1: break;
-       case 2: overdue();
-                return;
+       case 3: statreport();
+                break;
+       case 4: system("cls");
+               cout << "\n\tDevelopers: " << endl;
+               cout << "\n\t\tName               ID" << endl;
+               cout << "\n\t1. Elsabeth Kahsay    ETS 0241/12" << endl;
+               cout << "\t2. Elshaday Dereje    ETS 0243/12" << endl;
+               cout << "\t3. Eyobed Mesfin      ETS 0271/12" << endl;
+               cout << "\t4. Natan Mekebib      ETS 1029/12" << endl;
+               exit(0);
                 break;
        default:
          cout << "Invalid choice, would you like to try again(y/n)?" << endl;
@@ -90,90 +89,175 @@ void new_reg(){
          else{
              system("cls");
              cout << "Have a nice day!" << endl;
-             return;
+             exit(0);
          }
+         break;
+    }
+}
+inline void retrial(int a){
+
+   switch(a){
+       case 1: cout << "\n Do you want to go back to the main menu(y/n)" << endl;
+               cout << "Choice: ";
+               cin >> retry;
+               if (tolower(retry) == 'y'){
+                   menu();
+                  exit(0);
+               }
+               else{
+                  system("cls");
+                  cout << "Have a nice day!" << endl;
+                  exit(0);
+               }
+               break;
+      case 2: cout << "Invalid choice, would you like to try again(y/n)?" << endl;
+              cin >> retry;
+              if (tolower(retry) == 'y'){
+                 system("cls");
+                 return;
+              }
+              else{
+                 system("cls");
+                 cout << "Have a nice day!" << endl;
+                 exit(0);
+              }
+              break;
+   }
+}
+int main()
+{
+   system("color f0");
+   menu();
+}
+void new_reg(){
+
+      system("cls");
+      start:
+      int choice;
+      cout << "\tUser menu" << endl;
+      cout << "\n\t1. Register a student." << endl;
+      cout << "\t2. Check payment status." << endl;
+      cout << "\t3. Enrollment availability and courses." << endl;
+      cout << "\t4. Search options." << endl;
+      cout << "\t5. Edit record." << endl;
+      cout << "\t6. Delete record." << endl;
+      cout << "\n Choice: ";
+      cin >> choice;
+      switch (choice){
+       case 1: break;
+       case 2: overdue();
+                break;
+       case 3: system("cls");
+               cout << "\n\t    Courses" << endl;
+               cout << "\t1. Mathematics." << endl;
+               cout << "\t2. Physics." << endl;
+               cout << "\t3. Biology." << endl;
+               cout << "\t4. Chemistry." << endl;
+               cout << "\t5. English." << endl;
+               cout << "\nThere are " << intake_cap - stud_count
+                    << " available spots for this academic year." << endl;
+                  retrial(1);
+                  break;
+       case 4: searching();
+                  break;
+       case 5: edit();
+                  break;
+       case 6: deletion();
+                  break;
+       default: if (true){
+                  retrial(2);
+                  goto start;
+                }
          break;
     }
       int num;
       cout << "\nEnter the number of people to register: ";
       cin >> num;
-
+      system("cls");
       if(stud_count + num >= intake_cap){
         cout << "Sorry there isn't enough vacancies for this academic term!" << endl;
-        cout << " Do you want to go back to the main menu(y/n)" << endl;
-        cout << "Choice: ";
-        cin >> retry;
-         if (tolower(retry) == 'y'){
-            mainmenu();
-             return;
-         }
-         else{
-             system("cls");
-             cout << "Have a nice day!" << endl;
-             return;
-         }
+        retrial(1);
       }
       int id = 1000;
       for (int i = stud_count;i < stud_count + num;i++){
           cout << "--------------------";
           cout << "\nName: "; cin.ignore();
           gets(stud[i].name);
+          strupr(stud[i].name);
           cout << "\nAge: ";
           cin >> stud[i].age;
-          cout << "\nSEX: ";
+          cout << "\nSEX(M/F): ";
           cin >> stud[i].sex;
-          cout << "\nToday's date: 'day'/'month'/'year' with spaces: ";
+          cout << "\nToday's date(dd/mm/yy): with spaces: ";
           cin >> stud[i].reg_date.dd >> stud[i].reg_date.mm
               >> stud[i].reg_date.yy;
-          cout << "--------------------\n" << endl;
           stud[i].pay_date.dd = stud[i].reg_date.dd;
           stud[i].pay_date.mm = stud[i].reg_date.mm + 1;
           stud[i].pay_date.yy = stud[i].reg_date.yy;
           stud[i].stud_id = id + i;
+          Coursechoice(i);
+          system("cls");
+      }
+      for (int i = stud_count;i < stud_count + num;i++){
+          cout << "\nReceipt: " << endl;
+          cout << "----------------------------" << endl;
+          cout << "\nStudent ID: SMS" << stud[i].stud_id << endl;
+          cout << "Name: " << stud[i].name << endl;
+          cout << "Age: " << stud[i].age << " ";
+          cout << "\nSEX: " << char(toupper(stud[i].sex)) << endl;
+          cout << "Payment date: " << stud[i].pay_date.dd << "/"
+               << stud[i].pay_date.mm << "/" << stud[i].pay_date.yy << endl;
+          for (int j{};stud[i].courses.price[j];j++){
+                cout << stud[i].courses.cNames[j] << " Price: "
+                     << stud[i].courses.price[j] << endl;
+          }
+          cout << "Total Payment: "<< stud[i].total_pay << " birr." << endl;
+          cout << "----------------------------\n" << endl;
       }
       stud_count += num;
-
-      cout << " Do you want to go back to the main menu(y/n)" << endl;
-      cout << "Choice: ";
-      cin >> retry;
-      if (tolower(retry) == 'y'){
-            mainmenu();
-             return;
-      }
-      else{
-             system("cls");
-             cout << "Have a nice day!" << endl;
-             return;
-      }
+      reorder();
+      retrial(1);
 }
 void admin(){
 
     system("cls");
+    int password{1234};
+    int num;
+    cout << "\nAdministrator access required!" << endl;
+    cout << "Password: ";
+    cin >> num;
+    for (int i = 0; i < 3;i++){
+       if (num != password ){
+            cout << "Wrong password!" << endl;
+            cout << "Try again: ";
+            cin >> num;
+       }
+       else
+            goto start;
+    }
+    cout << "Too many attempts!" << endl;
+    cout << "Good bye!!!" << endl;
+          exit(0);
     start:
+    system("cls");
     int n;
+    cout << "\tAdministrator menu" << endl;
     cout << "\n\t1. Set intake capacity." << endl;
     cout << "\t2. Set payment for courses." << endl;
-    cout << "\t3. Register school expenses." << endl;
-    cout << "\t4. Calculate profit." << endl;
+    cout << "\t3. School expenses/Profit report." << endl;
     cout << "\n Choice: ";
     cin >> n;
     switch (n){
        case 1: set_intake();
                   break;
-       case 2: break;
-       case 3: break;
-       case 4: break;
+       case 2: set_pay();
+                  break;
+       case 3: profit();
+                  break;
        default:
-         cout << "Invalid choice, would you like to try again(y/n)?" << endl;
-         cin >> retry;
-         if (tolower(retry) == 'y'){
-            system("cls");
+         if (true){
+            retrial(2);
             goto start;
-         }
-         else{
-             system("cls");
-             cout << "Have a nice day!" << endl;
-             return;
          }
          break;
     }
@@ -184,16 +268,50 @@ void set_intake(){
        cin >> intake_cap;
        stud1 = new studInfo[intake_cap];
        for (int i{};i < intake_cap;i++){
-             stud1[i] = stud[i];
+          strcpy(stud1[i].name, stud[i].name);
+          stud1[i].age = stud[i].age;
+          stud1[i].sex = stud[i].sex;
+          stud1[i].reg_date.dd = stud[i].reg_date.dd;
+          stud1[i].reg_date.mm = stud[i].reg_date.mm;
+          stud1[i].reg_date.yy = stud[i].reg_date.yy;
+          stud1[i].pay_date.dd = stud1[i].reg_date.dd;
+          stud1[i].pay_date.mm = stud1[i].reg_date.mm + 1;
+          stud1[i].pay_date.yy = stud[i].reg_date.yy;
+          stud1[i].stud_id = stud[i].stud_id;
+          stud1[i].courses = stud[i].courses;
+          stud1[i].total_pay = stud[i].total_pay;
        }
         delete []stud;
         stud = stud1;
-        delete []stud1;
         stud1 = nullptr;
         if (stud_count >= intake_cap){
             cout << "You have removed " << stud_count - intake_cap
-                 << " from the registration list." << endl;
+                 << " students from the registration list." << endl;
+            stud_count = intake_cap;
         }
+        retrial(1);
+}
+void set_pay(){
+
+    int cnum;
+    cout << "\n How many course prices will you be changing(max = 5): ";
+    cout << "\n\t\tCourses" << endl;
+    cout << "\t1. Mathematics." << endl;
+    cout << "\t2. Physics." << endl;
+    cout << "\t3. Biology." << endl;
+    cout << "\t4. Chemistry." << endl;
+    cout << "\t5. English." << endl;
+    cout << "Choice: ";
+    cin >> cnum;
+    int cchoice;
+    if (cnum >= 1 && cnum <= 5){
+        for (int i{};i < cnum; i++){
+            cout << "Course number: ";
+            cin >> cchoice;
+            cout << "Enter new price: ";
+            cin >> prices[cchoice];
+        }
+    }
 }
 void overdue(){
 
@@ -201,8 +319,13 @@ void overdue(){
     cout << "Enter today's date with spaces (dd/mm/yy): ";
     cin >> today.dd >> today.mm >> today.yy;
     system("cls");
-    cout << "Result." << endl;
-    cout << "ID" << "\tName" << "\t\tSex"<< endl;
+    cout << "Result:" << endl;
+    cout << "----------------------------------------------------------------------------------------------------------------" << endl;
+    cout << " ID " << setw(4) << " " << "| Name "
+         << setw(26) << " " << "| Age " << setw(1) << " "
+         << "| SEX " << setw(3) << " " << "| Payment date " << setw(3) << " "
+         << "|Total Payment " << setw(10) << " " << endl;
+    cout << "----------------------------------------------------------------------------------------------------------------" << endl;
     for (int i{};i < stud_count;i++){
         if (today.yy <= stud[i].pay_date.yy &&
             today.mm <= stud[i].pay_date.mm &&
@@ -210,8 +333,263 @@ void overdue(){
            cout << "No overdue payments." << endl;
         }
         else{
-          cout << stud[i].stud_id << "\t" << stud[i].name
-               << "\t\t"<< char(toupper(stud[i].sex)) << endl;
+          table(i);
         }
     }
+    retrial(1);
+}
+void Coursechoice(int studnum){
+    start:
+    system("cls");
+    int cnum;
+    cout << "\n\t\tCourse Menu" << endl;
+    cout << "\n\t1. Mathematics." << endl;
+    cout << "\t2. Physics." << endl;
+    cout << "\t3. Biology." << endl;
+    cout << "\t4. Chemistry." << endl;
+    cout << "\t5. English." << endl;
+    cout << "\n How many courses will you be taking: ";
+    cin >> cnum;
+    if (cnum > 5){
+         if (true){
+            retrial(2);
+            goto start;
+         }
+    }
+    int choices;
+    for (int i{};i < cnum;i++){
+      here:
+      cout << "Course number: ";
+      cin >> choices;
+      switch(choices){
+        case 1: stud[studnum].courses.cNames[i] = "Mathematics";
+                stud[studnum].courses.price[i] = prices[0];
+                ctaken[0]++;
+                  break;
+        case 2: stud[studnum].courses.cNames[i] = "Physics";
+                stud[studnum].courses.price[i] = prices[1];
+                ctaken[1]++;
+                  break;
+        case 3: stud[studnum].courses.cNames[i] = "Biology";
+                stud[studnum].courses.price[i] = prices[2];
+                ctaken[2]++;
+                  break;
+        case 4: stud[studnum].courses.cNames[i] = "Chemistry";
+                stud[studnum].courses.price[i] = prices[3];
+                ctaken[3]++;
+                  break;
+        case 5: stud[studnum].courses.cNames[i] = "English";
+                stud[studnum].courses.price[i] = prices[4];
+                ctaken[4]++;
+                  break;
+        default:  cout << "Invalid input." << endl;
+                  cout << "Try again!" << endl;
+                  goto here;
+                    break;
+      }
+      stud[studnum].total_pay += stud[studnum].courses.price[i];
+    }
+}
+void profit(){
+
+    float tot{};
+    cout << "\n\tProfit report: " << endl;
+    cout << "Number of students: ";
+    cout << stud_count << endl;
+    for (int i{};i < stud_count;i++){
+        tot += stud[i].total_pay;
+    }
+    school.total = tot;
+    school.expense = tot * 0.75;
+    school.net = school.total - school.expense;
+    cout << "Total profit: ";
+    cout << school.total << " birr." <<endl;
+    cout << "Expenses: " << school.expense << " birr." << endl;
+    cout << "Net profit: " << school.net << " birr." << endl;
+    retrial(1);
+}
+void table(int i){
+      int name;
+          name = 31 - strlen(stud[i].name);
+          cout << "SMS" << stud[i].stud_id << " | " << stud[i].name << setw(name) << " "
+               << "| " << setw(4) << stud[i].age <<" | " << setw(6) << char(toupper(stud[i].sex))
+               <<" | " << setw(7) << stud[i].pay_date.dd << "/" << setw(2) << stud[i].pay_date.mm << "/"
+               << setw(4) << stud[i].pay_date.yy << " | " << setw(4) << stud[i].total_pay << " birr." << endl;
+          cout << "----------------------------------------------------------------------------------------------------------------" << endl;
+}
+void reorder(){
+    for (int i{};i < stud_count;i++){
+        for (int j{};j < stud_count - 1;j++){
+            if (stricmp(stud[j + 1].name, stud[j].name) <= 1){
+                swap(stud[j + 1], stud[j]);
+            }
+        }
+    }
+}
+void statreport(){
+    system("cls");
+    int countt{};
+    start:
+    cout << "\n\t\tStatistics and Report Menu" << endl;
+    cout << "\n\t1. Student list." << endl;
+    cout << "\t2. Students above 18 years of age." << endl;
+    cout << "\t3. Students less than 18 years of age." << endl;
+    cout << "\t4. Number of students taking each course." << endl;
+    cout << "\t5. Students paying over 1000 birr." << endl;
+    cout << "\n Choice: ";
+    int report;
+    cin >> report;
+    cout << "Result:" << endl;
+    cout << "----------------------------------------------------------------------------------------------------------------" << endl;
+    cout << " ID " << setw(4) << " " << "| Name "
+         << setw(26) << " " << "| Age " << setw(1) << " "
+         << "| SEX " << setw(3) << " " << "| Payment date " << setw(3) << " "
+         << "|Total Payment " << setw(10) << " " << endl;
+    cout << "----------------------------------------------------------------------------------------------------------------" << endl;
+    switch(report){
+       case 1: for (int i{};i < stud_count;i++){
+                 table(i);
+               }
+                retrial(1);
+               break;
+       case 2: for (int i{};i < stud_count;i++){
+                 if (stud[i].age >= 18){
+                      table(i);
+                      countt++;
+                 }
+               }
+               if (countt == 0){
+                  cout << "No results." << endl;
+               }
+                retrial(1);
+                break;
+       case 3: for (int i{};i < stud_count;i++){
+                 if (stud[i].age < 18){
+                      table(i);
+                      countt++;
+                 }
+               }
+               if (countt == 0){
+                  cout << "No results." << endl;
+               }
+                retrial(1);
+                break;
+       case 4: system("cls");
+               cout << "_________________________________" << endl;
+               cout << "| Courses     | No. of students |" << endl;
+               cout << "---------------------------------" << endl;
+               cout << "| Mathematics | " << setw(10) << ctaken[0] << setw(7) <<"|"<< endl;
+               cout << "| Physics     | " << setw(10) << ctaken[1] << setw(7) <<"|"<< endl;
+               cout << "| Biology     | " << setw(10) << ctaken[2] << setw(7) <<"|"<< endl;
+               cout << "| Chemistry   | " << setw(10) << ctaken[3] << setw(7) <<"|"<< endl;
+               cout << "| English     | " << setw(10) << ctaken[4] << setw(7) <<"|"<< endl;
+               cout << "---------------------------------" << endl;
+                retrial(1);
+                  break;
+       case 5: for (int i{};i < stud_count;i++){
+                 if (stud[i].total_pay >= 1000){
+                      table(i);
+                 }
+               }
+                retrial(1);
+                break;
+       default:  if (true){
+                   retrial(2);
+                   goto start;
+                 }
+                    break;
+   }
+}
+void searching(){
+      system("cls");
+      int countt{},num;
+      char str[30];
+      cout << "Enter search by \n1. Name or \n2. ID: " << endl;
+      cout << "Choice: "; cin >> num;
+      system("cls");
+      if (num == 1){
+          cout << "Enter the name: "; cin.ignore();
+          gets(str);
+      }
+      else if (num == 2){
+          cout << "Enter the ID: ";
+          cin >> num;
+      }
+      else
+          retrial(1);
+      system("cls");
+      cout << "\nResult: " << endl;
+      cout << "----------------------------------------------------------------------------------------------------------------" << endl;
+      for (int i{}; i < stud_count; i++){
+        if (stricmp(stud[i].name, str) == 0 || stud[i].stud_id == num){
+            table(i);
+            countt++;
+        }
+      }
+      if (countt == 0){
+        cout << "No matching results." << endl;
+      }
+      retrial(1);
+}
+void edit(){
+      system("cls");
+      int num, countt{};
+      cout << "Enter your ID number:";
+      cin >> num;
+      for (int i{}; i < stud_count; i++){
+        if (stud[i].stud_id == num){
+          cout << "--------------------";
+          cout << "\nName: "; cin.ignore();
+          gets(stud[i].name);
+          strupr(stud[i].name);
+          cout << "\nAge: ";
+          cin >> stud[i].age;
+          cout << "\nSEX(M/F): ";
+          cin >> stud[i].sex;
+          Coursechoice(i);
+          system("cls");
+          countt++;
+        }
+      }
+      if (countt == 0){
+        cout << "No matching results." << endl;
+      }
+      else
+        cout << "Successfully edited entry!" << endl;
+      reorder();
+      retrial(1);
+}
+void deletion(){
+      system("cls");
+      int num, countt{};
+      cout << "Enter your ID number:";
+      cin >> num;
+      for (int i{}; i < stud_count - 1; i++){
+        if (stud[i].stud_id == num){
+          stud[i].stud_id = 0;
+          stud[i].name[0] = '\0';
+          stud[i].age = 0;
+          stud[i].sex = '\0';
+          stud[i].reg_date.dd = 0;
+          stud[i].reg_date.mm = 0;
+          stud[i].reg_date.yy = 0;
+          stud[i].pay_date.dd = 0;
+          stud[i].pay_date.mm = 0;
+          stud[i].pay_date.yy = 0;
+          stud[i].total_pay = 0;
+          for (int j{};j < 5;j++){
+             stud[i].courses.cNames[j] = '\0';
+             stud[i].courses.price[j] = 0;
+          }
+          countt++;
+        }
+      }
+      if (countt == 0){
+        cout << "No matching results." << endl;
+      }
+      else
+        cout << "Successfully deleted entry!" << endl;
+      reorder();
+      --stud_count;
+      retrial(1);
 }
